@@ -1,0 +1,21 @@
+name: Bump Helm chart
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 1 * * 6"
+
+jobs:
+  bump-chart:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bump chart
+        uses: Scalified/helm-chart-bump-action@v2
+        with:
+          token: "${{ secrets.GH_TOKEN }}"
+          dockerhub-namespace: library
+          dockerhub-repository: redis
+          chart-file-path: charts/redis/Chart.yaml
+          docker-image-tag-pattern: '^[0-9]+\.[0-9]+\.[0-9]+$'

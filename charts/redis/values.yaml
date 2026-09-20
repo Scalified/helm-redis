@@ -1,0 +1,94 @@
+# Override the name of the chart (used in naming resources)
+nameOverride: ""
+
+# Override the full name (default is the chart name + release name)
+fullnameOverride: ""
+
+# Redis configuration
+redis:
+  # Metadata annotations for the Redis deployment
+  # Example:
+  # annotations:
+  #   example.com/annotation: "value"
+  annotations: {}
+
+  # Number of replicas/pods to run (should typically be 1)
+  replicaCount: 1
+
+  # Redis containers configuration
+  containers:
+    # Redis container configuration
+    redis:
+      image:
+        # Docker image repository for Redis
+        repository: redis
+        # Image tag to use (leave empty to use default from Chart or latest)
+        tag: ""
+        # Image pull policy (e.g., Always, IfNotPresent, Never)
+        pullPolicy: IfNotPresent
+
+      # Environment variables for Redis container
+      env: []
+
+      resources:
+        requests:
+          # Minimum amount of memory requested for the container
+          memory: 512Mi
+
+      # Additional volume mounts for the Redis container
+      # Example:
+      # volumeMounts:
+      #   - name: redis
+      #     mountPath: /data
+      #     subPath: redis-data
+      volumeMounts: []
+
+      # Default port for the Redis service
+      port: 6379
+
+  # Hostname used for the Redis pod/container
+  hostname: ""
+
+  # Additional volumes to be mounted into the pod
+  # Example:
+  # volumes:
+  #   - name: redis
+  #     persistentVolumeClaim:
+  #       claimName: redis
+  volumes: []
+
+  # Configuration for the Kubernetes Services exposing Redis
+  services:
+    # Kubernetes service type (e.g., ClusterIP, NodePort, LoadBalancer)
+    - type: ClusterIP
+      # List of ports to expose via the service
+      # Each entry defines a port name, external service port, internal container target port, and protocol
+      ports:
+        - name: redis
+          port: 6379
+          targetPort: 6379
+          protocol: TCP
+
+  # Configuration for Ingress to expose Redis via HTTP/HTTPS
+  # Note: Redis uses the Redis protocol (TCP). Ingress is HTTP/HTTPS based and may require
+  # an appropriate controller/configuration to expose Redis.
+  # Example:
+  # annotations:
+  #   nginx.ingress.kubernetes.io/backend-protocol: "TCP"
+  # className: nginx
+  # tls:
+  #   - hosts:
+  #       - redis.example.com
+  #     secretName: redis-tls
+  # rules:
+  #   - host: redis.example.com
+  #     http:
+  #       paths:
+  #         - path: /
+  #           pathType: Prefix
+  #           backend:
+  #             service:
+  #               name: redis
+  #               port:
+  #                 number: 6379
+  ingress: {}

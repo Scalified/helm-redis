@@ -1,0 +1,16 @@
+{{- if .Values.redis.services }}
+{{- range .Values.redis.services }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "redis.fullname" $ }}{{- if .name }}-{{ .name }}{{- end }}
+  labels: {{- include "redis.labels" $ | nindent 4 }}
+spec:
+  selector: {{- include "redis.selectorLabels" $ | nindent 4 }}
+  type: {{ .type }}
+  {{- if .ports }}
+  ports: {{- toYaml .ports | nindent 4 }}
+  {{- end }}
+{{- end }}
+{{- end }}

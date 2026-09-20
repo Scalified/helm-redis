@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "redis.fullname" $ }}
+  labels: {{- include "redis.labels" $ | nindent 4 }}
+spec:
+  {{- with .Values.redis }}
+  {{- $redis := . }}
+  replicas: {{ .replicaCount | default 1 }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels: {{- include "redis.selectorLabels" $ | nindent 6 }}
+  template:
+    metadata:
+      {{- if .annotations }}
+      annotations: {{- toYaml .annotations | nindent 8 }}
+      {{- end }}
+      labels: {{- include "redis.selectorLabels" $ | nindent 8 }}
+    spec:
+      containers:
+        {{- with .containers.redis }}
+        - name: {{ $.Chart.Name }}
+          {{- with .image }}
+          image: "{{ .repository }}:{{ .tag | default $.Chart.AppVersion }}"
+          imagePullPolicy: {{ .pullPolicy | default "IfNotPresent" }}
+          {{- end }}
+          {{- if .env }}
+          env: {{- toYaml .env | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: {{ .port | default 6379 }}
+              name: redis
+              protocol: TCP
+          startupProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 5
+            successThreshold: 1
+            failureThreshold: 30
+          livenessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 10
+            periodSeconds: 20
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            exec:
+              command:
+                - redis-cli
+                - ping
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+          {{- if .resources }}
+          resources: {{- toYaml .resources | nindent 12 }}
+          {{- end }}
+          {{- if .volumeMounts }}
+          volumeMounts: {{- toYaml .volumeMounts | nindent 12 }}
+          {{- end }}
+        {{- end }}
+      {{- if .hostname }}
+      hostname: {{ .hostname }}
+      {{- end }}
+      restartPolicy: Always
+      securityContext:
+        runAsUser: 999
+        runAsGroup: 999
+        fsGroup: 999
+      {{- if .volumes }}
+      volumes: {{- toYaml .volumes | nindent 8 }}
+      {{- end }}
+  {{- end }}
