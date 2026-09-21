@@ -8,6 +8,34 @@ entries:
         url: https://keybase.io/scalified/pgp_keys.asc
     apiVersion: v2
     appVersion: 8.10.1
+    created: "2026-09-21T08:44:47.907210285Z"
+    description: Redis Helm Chart
+    digest: 7aa443b5ead85ebfd6cb222d94a8e456ed0a18c8ace0a478ddf3947c41aef86e
+    home: https://github.com/Scalified/helm-redis
+    icon: https://scalified.github.io/helm-redis/icon.png
+    keywords:
+    - redis
+    - cache
+    - database
+    - key-value
+    - store
+    kubeVersion: '>= 1.13.0'
+    maintainers:
+    - email: vld.x@hotmail.com
+      name: Vladyslav Baidak
+      url: https://scalified.com
+    name: redis
+    type: application
+    urls:
+    - https://github.com/Scalified/helm-redis/releases/download/redis-0.0.4/redis-0.0.4.tgz
+    version: 0.0.4
+  - annotations:
+      artifacthub.io/category: integration-delivery
+      artifacthub.io/signKey: |
+        fingerprint: 687D9BE990493C58C0CFBEB65A065879383D7E21
+        url: https://keybase.io/scalified/pgp_keys.asc
+    apiVersion: v2
+    appVersion: 8.10.1
     created: "2026-09-21T08:27:07.992146262Z"
     description: Redis Helm Chart
     digest: 6ec456600db99c14256e3778718a19c93ec45cf81762c22b10004a4b105f1329
@@ -85,4 +113,4 @@ entries:
     urls:
     - https://github.com/Scalified/helm-redis/releases/download/redis-0.0.1/redis-0.0.1.tgz
     version: 0.0.1
-generated: "2026-09-21T08:27:07.992155906Z"
+generated: "2026-09-21T08:44:47.907234926Z"
