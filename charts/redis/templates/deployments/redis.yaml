@@ -5,6 +5,7 @@ metadata:
   labels: {{- include "redis.labels" $ | nindent 4 }}
 spec:
   {{- with .Values.redis }}
+  {{- $redisDefaultConfigName := printf "%s-default-config" (include "redis.fullname" $) }}
   replicas: {{ .replicaCount | default 1 }}
   strategy:
     type: Recreate
@@ -17,6 +18,29 @@ spec:
       {{- end }}
       labels: {{- include "redis.selectorLabels" $ | nindent 8 }}
     spec:
+      initContainers:
+        - name: {{ $.Chart.Name }}-bootstrap
+          image: busybox:1.38
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            runAsUser: 0
+          command:
+            - sh
+            - -c
+            - |
+              set -e
+              mkdir -p /config/conf.d
+              cat > /config/redis.conf <<'EOF'
+              include /usr/local/etc/redis/conf.d/*.conf
+              EOF
+              
+              cat > /config/conf.d/01-default.conf <<'EOF'
+              user default off
+              user probe on nopass -@all +ping
+              EOF
+          volumeMounts:
+            - name: {{ $redisDefaultConfigName }}
+              mountPath: /config
       containers:
         {{- with .containers.redis }}
         - name: {{ $.Chart.Name }}
@@ -74,12 +98,8 @@ spec:
           resources: {{- toYaml .resources | nindent 12 }}
           {{- end }}
           volumeMounts:
-            - name: redis-default-config
-              mountPath: /usr/local/etc/redis/redis.conf
-              subPath: redis.conf
-            - name: redis-default-config
-              mountPath: /usr/local/etc/redis/conf.d/01-default.conf
-              subPath: 01-default.conf
+            - name: {{ $redisDefaultConfigName }}
+              mountPath: /usr/local/etc/redis
             {{- if .volumeMounts }}
             {{- toYaml .volumeMounts | nindent 12 }}
             {{- end }}
@@ -93,9 +113,8 @@ spec:
         runAsGroup: 999
         fsGroup: 999
       volumes:
-        - name: redis-default-config
-          configMap:
-            name: {{ include "redis.fullname" $ }}-default-config
+        - name: {{ $redisDefaultConfigName }}
+          emptyDir: {}
         {{- if .volumes }}
         {{- toYaml .volumes | nindent 8 }}
         {{- end }}
