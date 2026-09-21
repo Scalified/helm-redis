@@ -15,6 +15,26 @@ helm repo add scalified-redis https://scalified.github.io/helm-redis/
 helm upgrade --install redis scalified-redis/redis --create-namespace --namespace redis
 ```
 
+## Usage
+
+### Configuration
+
+Configuration files can be mounted as follows:
+
+```yaml
+redis:
+  containers:
+    redis:
+      volumeMounts:
+        - name: redis-custom-config
+          mountPath: /usr/local/etc/redis/conf.d/02-custom.conf
+          subPath: 02-custom.conf
+  volumes:
+    - name: redis-custom-config
+      configMap:
+        name: redis-custom-config
+```
+
 ---
 
 **Made with ❤️ by [Scalified](http://www.scalified.com)**

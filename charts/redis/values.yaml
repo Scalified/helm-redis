@@ -6,20 +6,6 @@ fullnameOverride: ""
 
 # Redis configuration
 redis:
-  # Configuration for mounting an existing Secret that contains a redis.conf file.
-  # Both name and key must be set for the Secret to be mounted.
-  # The user is responsible for creating the Secret.
-  # Example:
-  # secret:
-  #   name: redis-config
-  #   key: redis.conf
-  config:
-    secret:
-      # Name of the existing Secret containing the Redis configuration
-      name: ""
-      # Key in the Secret that holds the redis.conf content
-      key: ""
-
   # Metadata annotations for the Redis deployment
   # Example:
   # annotations:

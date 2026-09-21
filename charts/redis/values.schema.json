@@ -18,28 +18,6 @@
       "type": "object",
       "description": "Redis Configuration",
       "properties": {
-        "config": {
-          "type": "object",
-          "description": "Configuration for mounting an existing Secret that contains a redis.conf file",
-          "properties": {
-            "secret": {
-              "type": "object",
-              "description": "Existing Secret reference",
-              "properties": {
-                "name": {
-                  "type": "string",
-                  "description": "Name of the existing Secret containing the Redis configuration",
-                  "default": ""
-                },
-                "key": {
-                  "type": "string",
-                  "description": "Key in the Secret that holds the redis.conf content",
-                  "default": ""
-                }
-              }
-            }
-          }
-        },
         "annotations": {
           "type": "object",
           "description": "Metadata annotations for the Redis deployment",

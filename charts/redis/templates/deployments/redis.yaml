@@ -5,11 +5,6 @@ metadata:
   labels: {{- include "redis.labels" $ | nindent 4 }}
 spec:
   {{- with .Values.redis }}
-  {{- $redis := . }}
-  {{- $configPath := "" }}
-  {{- if and .config.secret.name .config.secret.key }}
-  {{- $configPath = "/usr/local/etc/redis/redis.conf" }}
-  {{- end }}
   replicas: {{ .replicaCount | default 1 }}
   strategy:
     type: Recreate
@@ -29,11 +24,20 @@ spec:
           image: "{{ .repository }}:{{ .tag | default $.Chart.AppVersion }}"
           imagePullPolicy: {{ .pullPolicy | default "IfNotPresent" }}
           {{- end }}
-          {{- if $configPath }}
           command:
-            - redis-server
-            - {{ $configPath | quote }}
-          {{- end }}
+            - sh
+            - -c
+            - |
+              set -e
+              mkdir -p /usr/local/etc/redis/conf.d
+              cat > /usr/local/etc/redis/redis.conf <<'EOF'
+              include /usr/local/etc/redis/conf.d/*.conf
+              EOF
+              cat > /usr/local/etc/redis/conf.d/01-default.conf <<'EOF'
+              user default off
+              user probe on nopass -@all +ping
+              EOF
+              exec redis-server /usr/local/etc/redis/redis.conf
           {{- if .env }}
           env: {{- toYaml .env | nindent 12 }}
           {{- end }}
@@ -45,6 +49,8 @@ spec:
             exec:
               command:
                 - redis-cli
+                - --user
+                - probe
                 - ping
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -55,6 +61,8 @@ spec:
             exec:
               command:
                 - redis-cli
+                - --user
+                - probe
                 - ping
             initialDelaySeconds: 10
             periodSeconds: 20
@@ -65,6 +73,8 @@ spec:
             exec:
               command:
                 - redis-cli
+                - --user
+                - probe
                 - ping
             initialDelaySeconds: 5
             periodSeconds: 15
@@ -74,16 +84,8 @@ spec:
           {{- if .resources }}
           resources: {{- toYaml .resources | nindent 12 }}
           {{- end }}
-          {{- if or .volumeMounts $configPath }}
-          volumeMounts:
-            {{- if $configPath }}
-            - name: redis-config
-              mountPath: {{ $configPath }}
-              subPath: {{ $redis.config.secret.key }}
-            {{- end }}
-            {{- if .volumeMounts }}
-            {{- toYaml .volumeMounts | nindent 12 }}
-            {{- end }}
+          {{- if .volumeMounts }}
+          volumeMounts: {{- toYaml .volumeMounts | nindent 12 }}
           {{- end }}
         {{- end }}
       {{- if .hostname }}
@@ -94,15 +96,7 @@ spec:
         runAsUser: 999
         runAsGroup: 999
         fsGroup: 999
-      {{- if or .volumes $configPath }}
-      volumes:
-        {{- if $configPath }}
-        - name: redis-config
-          secret:
-            secretName: {{ .config.secret.name }}
-        {{- end }}
-        {{- if .volumes }}
-        {{- toYaml .volumes | nindent 8 }}
-        {{- end }}
+      {{- if .volumes }}
+      volumes: {{- toYaml .volumes | nindent 8 }}
       {{- end }}
   {{- end }}
