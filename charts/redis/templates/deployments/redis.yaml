@@ -25,19 +25,8 @@ spec:
           imagePullPolicy: {{ .pullPolicy | default "IfNotPresent" }}
           {{- end }}
           command:
-            - sh
-            - -c
-            - |
-              set -e
-              mkdir -p /usr/local/etc/redis/conf.d
-              cat > /usr/local/etc/redis/redis.conf <<'EOF'
-              include /usr/local/etc/redis/conf.d/*.conf
-              EOF
-              cat > /usr/local/etc/redis/conf.d/01-default.conf <<'EOF'
-              user default off
-              user probe on nopass -@all +ping
-              EOF
-              exec redis-server /usr/local/etc/redis/redis.conf
+            - redis-server
+            - /usr/local/etc/redis/redis.conf
           {{- if .env }}
           env: {{- toYaml .env | nindent 12 }}
           {{- end }}
@@ -84,9 +73,16 @@ spec:
           {{- if .resources }}
           resources: {{- toYaml .resources | nindent 12 }}
           {{- end }}
-          {{- if .volumeMounts }}
-          volumeMounts: {{- toYaml .volumeMounts | nindent 12 }}
-          {{- end }}
+          volumeMounts:
+            - name: redis-default-config
+              mountPath: /usr/local/etc/redis/redis.conf
+              subPath: redis.conf
+            - name: redis-default-config
+              mountPath: /usr/local/etc/redis/conf.d/01-default.conf
+              subPath: 01-default.conf
+            {{- if .volumeMounts }}
+            {{- toYaml .volumeMounts | nindent 12 }}
+            {{- end }}
         {{- end }}
       {{- if .hostname }}
       hostname: {{ .hostname }}
@@ -96,7 +92,11 @@ spec:
         runAsUser: 999
         runAsGroup: 999
         fsGroup: 999
-      {{- if .volumes }}
-      volumes: {{- toYaml .volumes | nindent 8 }}
-      {{- end }}
+      volumes:
+        - name: redis-default-config
+          configMap:
+            name: {{ include "redis.fullname" $ }}-default-config
+        {{- if .volumes }}
+        {{- toYaml .volumes | nindent 8 }}
+        {{- end }}
   {{- end }}
