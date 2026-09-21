@@ -6,6 +6,20 @@ fullnameOverride: ""
 
 # Redis configuration
 redis:
+  # Configuration for mounting an existing Secret that contains a redis.conf file.
+  # Both name and key must be set for the Secret to be mounted.
+  # The user is responsible for creating the Secret.
+  # Example:
+  # secret:
+  #   name: redis-config
+  #   key: redis.conf
+  config:
+    secret:
+      # Name of the existing Secret containing the Redis configuration
+      name: ""
+      # Key in the Secret that holds the redis.conf content
+      key: ""
+
   # Metadata annotations for the Redis deployment
   # Example:
   # annotations:
@@ -69,26 +83,3 @@ redis:
           targetPort: 6379
           protocol: TCP
 
-  # Configuration for Ingress to expose Redis via HTTP/HTTPS
-  # Note: Redis uses the Redis protocol (TCP). Ingress is HTTP/HTTPS based and may require
-  # an appropriate controller/configuration to expose Redis.
-  # Example:
-  # annotations:
-  #   nginx.ingress.kubernetes.io/backend-protocol: "TCP"
-  # className: nginx
-  # tls:
-  #   - hosts:
-  #       - redis.example.com
-  #     secretName: redis-tls
-  # rules:
-  #   - host: redis.example.com
-  #     http:
-  #       paths:
-  #         - path: /
-  #           pathType: Prefix
-  #           backend:
-  #             service:
-  #               name: redis
-  #               port:
-  #                 number: 6379
-  ingress: {}

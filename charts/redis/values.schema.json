@@ -18,6 +18,28 @@
       "type": "object",
       "description": "Redis Configuration",
       "properties": {
+        "config": {
+          "type": "object",
+          "description": "Configuration for mounting an existing Secret that contains a redis.conf file",
+          "properties": {
+            "secret": {
+              "type": "object",
+              "description": "Existing Secret reference",
+              "properties": {
+                "name": {
+                  "type": "string",
+                  "description": "Name of the existing Secret containing the Redis configuration",
+                  "default": ""
+                },
+                "key": {
+                  "type": "string",
+                  "description": "Key in the Secret that holds the redis.conf content",
+                  "default": ""
+                }
+              }
+            }
+          }
+        },
         "annotations": {
           "type": "object",
           "description": "Metadata annotations for the Redis deployment",
@@ -235,117 +257,6 @@
               "type",
               "ports"
             ]
-          }
-        },
-        "ingress": {
-          "type": "object",
-          "description": "Configuration for Ingress to expose Redis via HTTP/HTTPS",
-          "properties": {
-            "annotations": {
-              "type": "object",
-              "description": "Annotations to customize the behavior of the ingress controller"
-            },
-            "className": {
-              "type": "string",
-              "description": "Ingress class name (used to select the Ingress controller, e.g., nginx or traefik)",
-              "default": "nginx"
-            },
-            "tls": {
-              "type": "array",
-              "description": "TLS configuration for the ingress",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "hosts": {
-                    "type": "array",
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "secretName": {
-                    "type": "string"
-                  }
-                },
-                "required": [
-                  "hosts",
-                  "secretName"
-                ]
-              }
-            },
-            "rules": {
-              "type": "array",
-              "description": "List of rules for the Ingress resource",
-              "items": {
-                "type": "object",
-                "properties": {
-                  "host": {
-                    "type": "string"
-                  },
-                  "http": {
-                    "type": "object",
-                    "properties": {
-                      "paths": {
-                        "type": "array",
-                        "items": {
-                          "type": "object",
-                          "properties": {
-                            "path": {
-                              "type": "string"
-                            },
-                            "pathType": {
-                              "type": "string"
-                            },
-                            "backend": {
-                              "type": "object",
-                              "properties": {
-                                "service": {
-                                  "type": "object",
-                                  "properties": {
-                                    "name": {
-                                      "type": "string"
-                                    },
-                                    "port": {
-                                      "type": "object",
-                                      "properties": {
-                                        "number": {
-                                          "type": "integer"
-                                        }
-                                      },
-                                      "required": [
-                                        "number"
-                                      ]
-                                    }
-                                  },
-                                  "required": [
-                                    "name",
-                                    "port"
-                                  ]
-                                }
-                              },
-                              "required": [
-                                "service"
-                              ]
-                            }
-                          },
-                          "required": [
-                            "path",
-                            "pathType",
-                            "backend"
-                          ]
-                        }
-                      }
-                    },
-                    "required": [
-                      "paths"
-                    ]
-                  }
-                },
-                "required": [
-                  "host",
-                  "http"
-                ]
-              }
-            }
           }
         }
       },
