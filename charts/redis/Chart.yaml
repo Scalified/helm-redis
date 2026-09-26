@@ -1,7 +1,7 @@
 apiVersion: v2
 name: redis
-version: 0.0.5
-appVersion: "8.10.1"
+version: 8.8.3
+appVersion: "8.8.3"
 kubeVersion: ">= 1.13.0"
 description: Redis Helm Chart
 type: application
